@@ -1,0 +1,6 @@
+{
+  "name": "MultiGlam — Escova Alisadora 5 em 1",
+  "description": "Página de vendas profissional da Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt Profissional MultiGlam por R$ 149,90 à vista ou 12x de R$ 15,49.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
