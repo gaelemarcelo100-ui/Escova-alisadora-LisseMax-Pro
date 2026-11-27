@@ -15,7 +15,7 @@ const POLICY_CONTENT: Record<
   entrega: {
     title: 'Política de Frete e Entrega',
     paragraphs: [
-      'Oferecemos Frete Grátis para todo o Brasil em todos os pedidos da Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt Profissional MultiGlam.',
+      'Oferecemos Frete Grátis para todo o Brasil em todos os pedidos da LisseMAX Pro (Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt).',
       'Pedidos confirmados via PIX ou Cartão de Crédito têm prioridade de separação e despacho em até 24 horas úteis.',
       'O prazo médio de entrega após a postagem é de 2 a 5 dias úteis, variando conforme a região. Assim que o pedido for enviado, você receberá o código de rastreamento por e-mail e WhatsApp.',
     ],

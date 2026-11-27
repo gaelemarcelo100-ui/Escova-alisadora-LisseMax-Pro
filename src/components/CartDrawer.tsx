@@ -10,7 +10,7 @@ import {
   ArrowRight,
   Lock,
 } from 'lucide-react';
-import { PRODUCT_PRICING, ProductVariant, formatBRL } from '../data/productData';
+import { CHECKOUT_URL, PRODUCT_PRICING, ProductVariant, formatBRL } from '../data/productData';
 import { ResilientImage } from './ResilientImage';
 
 export interface CartItem {
@@ -183,15 +183,17 @@ export function CartDrawer({
             <div className="py-16 text-center space-y-3">
               <p className="text-base font-semibold text-zinc-900">Sua sacola está vazia</p>
               <p className="text-sm text-zinc-500">
-                Escolha a sua cor favorita da Escova Alisadora 5 em 1 para começar.
+                Garanta sua LisseMAX Pro (Preto) por {formatBRL(PRODUCT_PRICING.cashPrice)} à vista
+                com Frete Grátis.
               </p>
-              <button
-                type="button"
-                onClick={onClose}
-                className="mt-2 inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-[#00A650] text-white text-sm font-semibold hover:bg-[#008A42] transition-colors cursor-pointer"
+              <a
+                href={CHECKOUT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center justify-center px-6 py-3 rounded-lg bg-[#00A650] text-white text-sm font-bold hover:bg-[#008A42] transition-colors cursor-pointer"
               >
-                Escolher Cor
-              </button>
+                COMPRAR AGORA
+              </a>
             </div>
           ) : step === 'cart' ? (
             <div className="space-y-4">
@@ -203,7 +205,7 @@ export function CartDrawer({
                   <div className="w-20 h-20 rounded-lg overflow-hidden bg-zinc-100 shrink-0 border border-zinc-200">
                     <ResilientImage
                       src={item.variant.image}
-                      alt={`Escova Alisadora 5 em 1 MultiGlam - Cor ${item.variant.name}`}
+                      alt={`LisseMAX Pro - Cor ${item.variant.name}`}
                       fallbackLabel={item.variant.name}
                     />
                   </div>
@@ -211,7 +213,7 @@ export function CartDrawer({
                     <div className="flex items-start justify-between gap-2">
                       <div>
                         <p className="text-sm font-semibold text-[#111113] leading-snug">
-                          Escova Alisadora 5 em 1 Bivolt
+                          LisseMAX Pro — 5 em 1 Bivolt
                         </p>
                         <p className="text-xs text-zinc-500 mt-0.5">
                           Cor: <strong className="text-zinc-800">{item.variant.name}</strong>
@@ -404,14 +406,15 @@ export function CartDrawer({
             </div>
 
             {step === 'cart' ? (
-              <button
-                type="button"
-                onClick={() => setStep('checkout')}
+              <a
+                href={CHECKOUT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="w-full py-3.5 px-5 rounded-lg bg-[#00A650] hover:bg-[#008A42] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <span>FINALIZAR COMPRA</span>
                 <ArrowRight className="w-4 h-4" />
-              </button>
+              </a>
             ) : (
               <div className="flex gap-2">
                 <button

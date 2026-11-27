@@ -12,7 +12,7 @@ export function ResilientImage({
   src,
   alt,
   className = 'w-full h-full object-cover',
-  fallbackLabel = 'MultiGlam 5 em 1',
+  fallbackLabel = 'LisseMAX Pro',
 }: ResilientImageProps) {
   const [hasError, setHasError] = useState(false);
 

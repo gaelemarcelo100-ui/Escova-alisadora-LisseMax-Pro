@@ -72,7 +72,7 @@ export function ReviewLightboxModal({ review, onClose }: ReviewLightboxModalProp
           </div>
 
           <div className="pt-4 border-t border-zinc-200 text-xs text-zinc-500">
-            Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt Profissional
+            LisseMAX Pro — Escova Alisadora e Modeladora 5 em 1 Bivolt
           </div>
         </div>
       </div>

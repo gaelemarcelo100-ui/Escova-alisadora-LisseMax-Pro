@@ -9,7 +9,6 @@ import {
   Plus,
   Minus,
   CreditCard,
-  MapPin,
   Lock,
   CheckCircle2,
   Headphones,
@@ -19,13 +18,14 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import {
+  CHECKOUT_URL,
   GALLERY_IMAGES,
   DESCRIPTION_IMAGES,
   PRODUCT_VARIANTS,
   PRODUCT_PRICING,
+  PRODUCT_VIDEO_URL,
   CLONED_REVIEWS,
   TECHNICAL_SPECS,
-  ProductVariant,
   ClonedReviewItem,
   formatBRL,
 } from './data/productData';
@@ -34,21 +34,16 @@ import { CartDrawer, CartItem } from './components/CartDrawer';
 import { InstallmentsModal } from './components/InstallmentsModal';
 import { PolicyModal, PolicyTopic } from './components/PolicyModal';
 import { ReviewLightboxModal } from './components/ReviewLightboxModal';
+import { ShowcaseVideoPlayer } from './components/ShowcaseVideoPlayer';
 
 export default function App() {
-  const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(PRODUCT_VARIANTS[0]);
+  const selectedVariant = PRODUCT_VARIANTS[0];
   const [activeSlideIndex, setActiveSlideIndex] = useState<number>(0);
   const [quantity, setQuantity] = useState<number>(1);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [isInstallmentsOpen, setIsInstallmentsOpen] = useState<boolean>(false);
   const [activePolicy, setActivePolicy] = useState<PolicyTopic>(null);
-
-  // CEP shipping calculator
-  const [cepInput, setCepInput] = useState<string>('');
-  const [cepResult, setCepResult] = useState<{ cep: string; valid: boolean; message: string } | null>(
-    null
-  );
 
   // Reviews state (all 168 real reviews preserved)
   const [reviews, setReviews] = useState<ClonedReviewItem[]>(CLONED_REVIEWS);
@@ -73,21 +68,8 @@ export default function App() {
 
   const totalCartUnits = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  const handleSelectVariant = (variant: ProductVariant) => {
-    setSelectedVariant(variant);
-    const matchingSlide = GALLERY_IMAGES.findIndex((s) => s.variantId === variant.id);
-    if (matchingSlide !== -1) {
-      setActiveSlideIndex(matchingSlide);
-    }
-  };
-
   const handleSelectSlide = (index: number) => {
     setActiveSlideIndex(index);
-    const slide = GALLERY_IMAGES[index];
-    if (slide.variantId) {
-      const matched = PRODUCT_VARIANTS.find((v) => v.id === slide.variantId);
-      if (matched) setSelectedVariant(matched);
-    }
   };
 
   const handlePrevSlide = () => {
@@ -98,19 +80,6 @@ export default function App() {
   const handleNextSlide = () => {
     const nextIdx = (activeSlideIndex + 1) % GALLERY_IMAGES.length;
     handleSelectSlide(nextIdx);
-  };
-
-  const addToCartAndOpen = (variant: ProductVariant, qty: number) => {
-    setCartItems((prev) => {
-      const existing = prev.find((item) => item.variant.id === variant.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.variant.id === variant.id ? { ...item, quantity: item.quantity + qty } : item
-        );
-      }
-      return [...prev, { variant, quantity: qty }];
-    });
-    setIsCartOpen(true);
   };
 
   const handleUpdateCartQty = (variantId: string, delta: number) => {
@@ -127,30 +96,6 @@ export default function App() {
 
   const handleRemoveCartItem = (variantId: string) => {
     setCartItems((prev) => prev.filter((item) => item.variant.id !== variantId));
-  };
-
-  const handleCepInputChange = (raw: string) => {
-    const digits = raw.replace(/\D/g, '').slice(0, 8);
-    const masked = digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
-    setCepInput(masked);
-  };
-
-  const handleCalculateShipping = (e: FormEvent) => {
-    e.preventDefault();
-    const digits = cepInput.replace(/\D/g, '');
-    if (digits.length !== 8) {
-      setCepResult({
-        cep: cepInput,
-        valid: false,
-        message: 'Digite um CEP válido com 8 dígitos.',
-      });
-      return;
-    }
-    setCepResult({
-      cep: cepInput,
-      valid: true,
-      message: 'Frete Grátis confirmado · Entrega em 2 a 5 dias úteis!',
-    });
   };
 
   const handleReviewSubmit = (e: FormEvent) => {
@@ -182,13 +127,41 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FFFDFB] text-[#1E1017] overflow-x-clip">
-      {/* Top Announcement Bar — Deep Plum Noir */}
-      <div className="bg-[#1E1017] text-white text-[11px] sm:text-xs font-semibold py-2 px-4 text-center tracking-wide">
-        <span>Frete Grátis para Todo o Brasil</span>
-        <span className="mx-2 text-rose-300/60" aria-hidden="true">
-          ·
-        </span>
-        <span>Envio Nacional em até 24h úteis</span>
+      {/* Top Announcement Bar — Electronic Ticker Scrolling Left */}
+      <div
+        className="relative overflow-hidden bg-[#1E1017] text-white border-b border-white/10 py-2.5 select-none"
+        aria-label="Frete Grátis para Todo o Brasil — Envio Nacional em até 24h úteis"
+      >
+        <div className="animate-marquee-left items-center text-[11px] sm:text-xs font-extrabold uppercase tracking-[0.14em] whitespace-nowrap">
+          {[0, 1].map((trackIdx) => (
+            <div
+              key={trackIdx}
+              aria-hidden={trackIdx === 1}
+              className="flex items-center shrink-0"
+            >
+              {[0, 1, 2].map((repeatIdx) => (
+                <div key={repeatIdx} className="flex items-center shrink-0">
+                  <span className="inline-flex items-center gap-2 px-5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] shrink-0" />
+                    <span>Frete Grátis para Todo o Brasil</span>
+                  </span>
+                  <span className="inline-flex items-center gap-2 px-5 text-rose-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-300/70 shrink-0" />
+                    <span>Envio Nacional em até 24h úteis</span>
+                  </span>
+                  <span className="inline-flex items-center gap-2 px-5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#34D399] shrink-0" />
+                    <span>12x de {formatBRL(PRODUCT_PRICING.installmentValue)} no Cartão</span>
+                  </span>
+                  <span className="inline-flex items-center gap-2 px-5 text-rose-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-300/70 shrink-0" />
+                    <span>Compra 100% Segura</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Static 3-Zone Header */}
@@ -198,7 +171,7 @@ export default function App() {
             href="#produto"
             className="font-editorial text-2xl font-bold tracking-tight text-[#1E1017] whitespace-nowrap shrink-0"
           >
-            MultiGlam
+            LisseMAX Pro
           </a>
 
           <nav
@@ -262,7 +235,7 @@ export default function App() {
             <span className="shrink-0">Beleza Profissional</span>
             <span aria-hidden="true">/</span>
             <span className="text-[#1E1017] font-medium truncate">
-              Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt
+              LisseMAX Pro — Escova Alisadora 5 em 1 Bivolt
             </span>
           </nav>
 
@@ -299,8 +272,8 @@ export default function App() {
                 </div>
               </div>
 
-              {/* 10 Thumbnails */}
-              <div className="flex sm:grid sm:grid-cols-5 gap-2.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+              {/* 6 Thumbnails (Preto + Demonstrações) */}
+              <div className="flex sm:grid sm:grid-cols-6 gap-2.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
                 {GALLERY_IMAGES.map((slide, idx) => {
                   const isActive = idx === activeSlideIndex;
                   return (
@@ -334,9 +307,12 @@ export default function App() {
                   Envio Nacional · Bivolt 110V/220V · Pronta Entrega
                 </p>
 
-                <h1 className="font-editorial text-2xl sm:text-[32px] font-bold tracking-tight text-[#1E1017] leading-[1.18] text-balance">
-                  Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt Profissional
+                <h1 className="font-editorial text-3xl sm:text-[38px] font-bold tracking-tight text-[#1E1017] leading-[1.12] text-balance">
+                  LisseMAX Pro
                 </h1>
+                <p className="text-sm sm:text-base font-medium text-[#5B4751]">
+                  Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt Profissional
+                </p>
 
                 <a
                   href="#avaliacoes"
@@ -395,43 +371,21 @@ export default function App() {
                 </button>
               </div>
 
-              {/* Color Selector */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
+              {/* Single Color Status (Preto Only) */}
+              <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-[#FFFDFB] border border-[#EADFE3] text-sm">
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className="w-4 h-4 rounded-full border border-[#D9C8CF] shrink-0"
+                    style={{ backgroundColor: selectedVariant.swatchHex }}
+                    aria-hidden="true"
+                  />
                   <span className="text-[#5B4751]">
                     Cor: <strong className="text-[#1E1017]">{selectedVariant.name}</strong>
                   </span>
-                  <span className="text-xs font-bold text-[#00A650]">
-                    {selectedVariant.stockLabel}
-                  </span>
                 </div>
-
-                <div className="grid grid-cols-4 gap-2.5">
-                  {PRODUCT_VARIANTS.map((variant) => {
-                    const isSelected = variant.id === selectedVariant.id;
-                    return (
-                      <button
-                        key={variant.id}
-                        type="button"
-                        onClick={() => handleSelectVariant(variant)}
-                        className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 text-xs font-bold transition-all cursor-pointer min-h-[44px] ${
-                          isSelected
-                            ? 'border-[#1E1017] bg-[#FFF6F9] text-[#1E1017] shadow-xs'
-                            : 'border-[#EADFE3] bg-white text-[#5B4751] hover:border-[#9D174D]/50'
-                        }`}
-                      >
-                        <div className="w-full aspect-square rounded-lg overflow-hidden bg-white border border-[#EADFE3]">
-                          <ResilientImage
-                            src={variant.image}
-                            alt={`Cor ${variant.name}`}
-                            fallbackLabel={variant.name}
-                          />
-                        </div>
-                        <span className="whitespace-nowrap">{variant.name}</span>
-                      </button>
-                    );
-                  })}
-                </div>
+                <span className="text-xs font-bold text-[#00A650]">
+                  {selectedVariant.stockLabel}
+                </span>
               </div>
 
               {/* Quantity + MASSIVE Full-Width Buy Button */}
@@ -462,14 +416,15 @@ export default function App() {
                 </div>
 
                 {/* Extra-Large High-Conversion CTA Button */}
-                <button
-                  type="button"
-                  onClick={() => addToCartAndOpen(selectedVariant, quantity)}
+                <a
+                  href={CHECKOUT_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-full py-5 sm:py-6 px-8 rounded-2xl bg-[#00A650] hover:bg-[#008A42] active:scale-[0.99] text-white font-extrabold text-lg sm:text-xl tracking-wide transition-all shadow-[0_12px_28px_rgba(0,166,80,0.32)] cursor-pointer flex items-center justify-center gap-2.5"
                 >
                   <ShoppingBag className="w-6 h-6 shrink-0" />
                   <span>COMPRAR AGORA</span>
-                </button>
+                </a>
 
                 <div className="flex flex-wrap items-center justify-center gap-1.5 pt-0.5 text-[11px] font-semibold text-[#5B4751]">
                   {['PIX', 'Visa', 'Mastercard', 'Elo', 'Hipercard', 'Amex'].map((brand) => (
@@ -483,47 +438,21 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Shipping & CEP Simulator */}
-              <div className="rounded-xl border border-[#EADFE3] bg-[#FFFDFB] p-4 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
-                  <div className="flex items-center gap-1.5 font-bold text-[#00A650]">
-                    <Truck className="w-4 h-4 shrink-0" />
-                    <span>Frete Grátis Nacional</span>
+              {/* Frete Grátis Confirmation (CEP Calculator Removed) */}
+              <div className="rounded-xl border border-[#00A650]/25 bg-[#00A650]/6 p-4 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-lg bg-[#00A650]/15 text-[#00A650] flex items-center justify-center shrink-0">
+                    <Truck className="w-4 h-4" />
                   </div>
-                  <span className="text-xs font-semibold text-[#5B4751]">
-                    Receba em 2 a 5 dias úteis
-                  </span>
+                  <div>
+                    <p className="text-sm font-extrabold text-[#00A650]">
+                      Frete Grátis para Todo o Brasil
+                    </p>
+                    <p className="text-xs text-[#5B4751]">
+                      Envio nacional com código de rastreamento · 2 a 5 dias úteis
+                    </p>
+                  </div>
                 </div>
-
-                <form onSubmit={handleCalculateShipping} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <MapPin className="w-4 h-4 text-[#9D8590] absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      value={cepInput}
-                      onChange={(e) => handleCepInputChange(e.target.value)}
-                      placeholder="Seu CEP (00000-000)"
-                      className="w-full pl-9 pr-3 py-2.5 text-sm rounded-lg border border-[#D9C8CF] bg-white tabular-nums focus:outline-none focus:border-[#00A650]"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="px-4 py-2.5 rounded-lg border border-[#D9C8CF] bg-white hover:bg-[#FFF6F9] text-xs font-bold text-[#1E1017] transition-colors whitespace-nowrap shrink-0 cursor-pointer"
-                  >
-                    Calcular
-                  </button>
-                </form>
-
-                {cepResult && (
-                  <p
-                    className={`text-xs font-bold ${
-                      cepResult.valid ? 'text-[#00A650]' : 'text-red-700'
-                    }`}
-                  >
-                    {cepResult.message}
-                  </p>
-                )}
               </div>
 
               {/* Compact Guarantee + Proof Metrics */}
@@ -586,8 +515,8 @@ export default function App() {
                 <div className="rounded-2xl overflow-hidden border border-[#EADFE3] bg-[#FFFDFB] shadow-sm">
                   <ResilientImage
                     src={DESCRIPTION_IMAGES[0]}
-                    alt="Escova Alisadora e Modeladora Elétrica 5 em 1 MultiGlam"
-                    fallbackLabel="MultiGlam 5 em 1"
+                    alt="LisseMAX Pro — Escova Alisadora e Modeladora Elétrica 5 em 1"
+                    fallbackLabel="LisseMAX Pro"
                     className="w-full h-auto object-cover"
                   />
                 </div>
@@ -640,6 +569,45 @@ export default function App() {
               </div>
             </div>
 
+            {/* Video Showcase Block (16:9) — Between Multi Funções and Fácil de Usar */}
+            <div id="video-demonstracao" className="space-y-8">
+              <div className="text-center max-w-3xl mx-auto space-y-4">
+                <p className="text-sm font-extrabold uppercase tracking-wider text-[#9D174D]">
+                  Veja na Prática
+                </p>
+                <h3 className="font-editorial text-3xl sm:text-5xl font-bold text-[#1E1017] leading-[1.12] text-balance">
+                  Liso perfeito em uma única passada.
+                </h3>
+                <p className="text-lg sm:text-xl text-[#4A3842] leading-relaxed">
+                  Assista ao resultado real nos fios: em segundos o cabelo fica{' '}
+                  <strong className="text-[#1E1017]">
+                    alinhado, solto e com brilho de salão
+                  </strong>{' '}
+                  — sem frizz e sem queimar o couro cabeludo.
+                </p>
+              </div>
+
+              <div className="max-w-4xl mx-auto space-y-4">
+                <ShowcaseVideoPlayer videoUrl={PRODUCT_VIDEO_URL} />
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                  {[
+                    'Alisa da raiz às pontas em segundos',
+                    'Zero frizz já na primeira passada',
+                    'Cerdas protetoras que não queimam',
+                  ].map((point) => (
+                    <div
+                      key={point}
+                      className="flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#FFF9FB] border border-[#EADFE3] text-sm sm:text-base font-bold text-[#1E1017] text-center"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-[#00A650] shrink-0" />
+                      <span>{point}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             {/* Block 3: Simplicity */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-center">
               <div className="lg:col-span-6 order-2 lg:order-1">
@@ -673,7 +641,7 @@ export default function App() {
                 <div className="aspect-[4/3] bg-white border-b border-[#EADFE3] overflow-hidden">
                   <ResilientImage
                     src={DESCRIPTION_IMAGES[3]}
-                    alt="Tecnologia da Escova Alisadora 5 em 1 MultiGlam"
+                    alt="Tecnologia da LisseMAX Pro 5 em 1"
                     fallbackLabel="Economize Tempo"
                     className="w-full h-full object-cover"
                   />
@@ -694,7 +662,7 @@ export default function App() {
                 <div className="aspect-[4/3] bg-white border-b border-[#EADFE3] overflow-hidden">
                   <ResilientImage
                     src={DESCRIPTION_IMAGES[4]}
-                    alt="Arrase com os cabelos dos sonhos usando a MultiGlam Bivolt"
+                    alt="Arrase com os cabelos dos sonhos usando a LisseMAX Pro Bivolt"
                     fallbackLabel="Portátil e Bivolt"
                     className="w-full h-full object-cover"
                   />
@@ -978,7 +946,7 @@ export default function App() {
                 Oferta Especial · Frete Grátis Hoje
               </p>
               <h3 className="font-editorial text-3xl sm:text-4xl font-bold leading-tight text-balance">
-                Garanta sua Escova 5 em 1 MultiGlam agora
+                Garanta sua LisseMAX Pro agora
               </h3>
               <p className="text-lg text-rose-100/90 tabular-nums">
                 <strong className="text-white text-xl">
@@ -992,14 +960,15 @@ export default function App() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => addToCartAndOpen(selectedVariant, 1)}
+            <a
+              href={CHECKOUT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="w-full lg:w-auto px-10 py-5 rounded-2xl bg-[#00A650] hover:bg-[#008A42] active:scale-[0.99] text-white font-extrabold text-lg tracking-wide transition-all whitespace-nowrap shrink-0 cursor-pointer shadow-[0_12px_28px_rgba(0,166,80,0.35)] inline-flex items-center justify-center gap-2.5"
             >
               <Sparkles className="w-5 h-5" />
-              <span>COMPRAR AGORA ({selectedVariant.name.toUpperCase()})</span>
-            </button>
+              <span>COMPRAR AGORA</span>
+            </a>
           </div>
         </section>
 
@@ -1049,10 +1018,10 @@ export default function App() {
       <footer className="bg-[#FFFDFB] border-t border-[#EADFE3] text-sm text-[#5B4751] pb-28">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-3">
-            <span className="font-editorial text-xl font-bold text-[#1E1017]">MultiGlam</span>
+            <span className="font-editorial text-xl font-bold text-[#1E1017]">LisseMAX Pro</span>
             <p className="text-xs text-[#7D6671] leading-relaxed">
-              Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt Profissional. Fios alinhados,
-              brilhantes e sem frizz todos os dias.
+              LisseMAX Pro — Escova Alisadora e Modeladora Elétrica 5 em 1 Bivolt Profissional.
+              Fios alinhados, brilhantes e sem frizz todos os dias.
             </p>
           </div>
 
@@ -1061,7 +1030,7 @@ export default function App() {
               Atendimento
             </h4>
             <p className="text-xs text-[#5B4751]">Segunda à Sexta, 9:00h às 18:00h</p>
-            <p className="text-xs font-semibold text-[#1E1017]">suporte@multiglambrasil.com.br</p>
+            <p className="text-xs font-semibold text-[#1E1017]">suporte@lissemaxpro.com.br</p>
             <button
               type="button"
               onClick={() => setActivePolicy('rastreio')}
@@ -1124,7 +1093,7 @@ export default function App() {
 
         <div className="border-t border-[#EADFE3] py-5 px-4 text-center text-xs text-[#7D6671] flex items-center justify-center gap-2">
           <ShieldCheck className="w-4 h-4 text-[#00A650]" />
-          <span>© {new Date().getFullYear()} MultiGlam Brasil — Todos os Direitos Reservados</span>
+          <span>© {new Date().getFullYear()} LisseMAX Pro — Todos os Direitos Reservados</span>
         </div>
       </footer>
 
@@ -1166,34 +1135,15 @@ export default function App() {
             </div>
           </div>
 
-          {/* Center (Desktop Quick Color Dots) */}
-          <div className="hidden md:flex items-center gap-1.5 shrink-0">
-            {PRODUCT_VARIANTS.map((variant) => {
-              const active = variant.id === selectedVariant.id;
-              return (
-                <button
-                  key={`dock-${variant.id}`}
-                  type="button"
-                  onClick={() => handleSelectVariant(variant)}
-                  title={`Selecionar cor ${variant.name}`}
-                  aria-label={`Selecionar cor ${variant.name}`}
-                  className={`w-6 h-6 rounded-full border-2 transition-transform cursor-pointer ${
-                    active ? 'border-[#1E1017] scale-110' : 'border-[#D9C8CF] hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: variant.swatchHex }}
-                />
-              );
-            })}
-          </div>
-
           {/* Right: Enlarged High-Conversion Floating Buy Button */}
-          <button
-            type="button"
-            onClick={() => addToCartAndOpen(selectedVariant, quantity)}
-            className="px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl bg-[#00A650] hover:bg-[#008A42] active:scale-[0.98] text-white text-sm sm:text-base font-extrabold tracking-wide whitespace-nowrap shrink-0 shadow-[0_6px_18px_rgba(0,166,80,0.3)] transition-all cursor-pointer"
+          <a
+            href={CHECKOUT_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl bg-[#00A650] hover:bg-[#008A42] active:scale-[0.98] text-white text-sm sm:text-base font-extrabold tracking-wide whitespace-nowrap shrink-0 shadow-[0_6px_18px_rgba(0,166,80,0.3)] transition-all cursor-pointer inline-flex items-center justify-center"
           >
             COMPRAR AGORA
-          </button>
+          </a>
         </div>
       </div>
 
