@@ -188,7 +188,7 @@ export function CartDrawer({
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-2 inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-[#028030] text-white text-sm font-semibold hover:bg-[#026B27] transition-colors cursor-pointer"
+                className="mt-2 inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-[#00A650] text-white text-sm font-semibold hover:bg-[#008A42] transition-colors cursor-pointer"
               >
                 Escolher Cor
               </button>
@@ -258,7 +258,7 @@ export function CartDrawer({
               ))}
 
               <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-[#028030] font-medium">
+                <div className="flex items-center gap-2 text-[#00A650] font-medium">
                   <Truck className="w-4 h-4 shrink-0" />
                   <span>Frete Grátis Nacional aplicado</span>
                 </div>
@@ -279,12 +279,12 @@ export function CartDrawer({
                     onClick={() => setPaymentMethod('pix')}
                     className={`p-3 rounded-lg border text-left transition-colors cursor-pointer ${
                       paymentMethod === 'pix'
-                        ? 'border-[#028030] bg-[#028030]/5'
+                        ? 'border-[#00A650] bg-[#00A650]/5'
                         : 'border-zinc-200 bg-white hover:border-zinc-300'
                     }`}
                   >
                     <p className="text-xs font-semibold text-[#111113]">PIX à vista</p>
-                    <p className="text-sm font-bold text-[#028030] tabular-nums mt-0.5">
+                    <p className="text-sm font-bold text-[#00A650] tabular-nums mt-0.5">
                       {formatBRL(cashSubtotal)}
                     </p>
                   </button>
@@ -293,7 +293,7 @@ export function CartDrawer({
                     onClick={() => setPaymentMethod('card')}
                     className={`p-3 rounded-lg border text-left transition-colors cursor-pointer ${
                       paymentMethod === 'card'
-                        ? 'border-[#028030] bg-[#028030]/5'
+                        ? 'border-[#00A650] bg-[#00A650]/5'
                         : 'border-zinc-200 bg-white hover:border-zinc-300'
                     }`}
                   >
@@ -316,7 +316,7 @@ export function CartDrawer({
                     value={formData.name}
                     onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                     placeholder="Ex: Maria Clara Oliveira"
-                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:border-[#028030]"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:border-[#00A650]"
                   />
                 </div>
 
@@ -331,7 +331,7 @@ export function CartDrawer({
                       value={formData.whatsapp}
                       onChange={(e) => setFormData((p) => ({ ...p, whatsapp: e.target.value }))}
                       placeholder="(11) 99999-9999"
-                      className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:border-[#028030]"
+                      className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:border-[#00A650]"
                     />
                   </div>
                   <div>
@@ -342,7 +342,7 @@ export function CartDrawer({
                       value={formData.cep}
                       onChange={(e) => handleCepChange(e.target.value)}
                       placeholder="00000-000"
-                      className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 tabular-nums focus:outline-none focus:border-[#028030]"
+                      className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 tabular-nums focus:outline-none focus:border-[#00A650]"
                     />
                   </div>
                 </div>
@@ -357,7 +357,7 @@ export function CartDrawer({
                     value={formData.email}
                     onChange={(e) => setFormData((p) => ({ ...p, email: e.target.value }))}
                     placeholder="seuemail@exemplo.com"
-                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:border-[#028030]"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:border-[#00A650]"
                   />
                 </div>
 
@@ -371,7 +371,7 @@ export function CartDrawer({
                     value={formData.address}
                     onChange={(e) => setFormData((p) => ({ ...p, address: e.target.value }))}
                     placeholder="Rua, número, bairro e cidade/UF"
-                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:border-[#028030]"
+                    className="w-full px-3.5 py-2.5 text-sm rounded-lg border border-zinc-300 focus:outline-none focus:border-[#00A650]"
                   />
                 </div>
               </div>
@@ -390,7 +390,7 @@ export function CartDrawer({
             <div className="space-y-1">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-zinc-600">Frete</span>
-                <span className="font-semibold text-[#028030]">Grátis</span>
+                <span className="font-semibold text-[#00A650]">Grátis</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-zinc-900">Total à vista</span>
@@ -407,7 +407,7 @@ export function CartDrawer({
               <button
                 type="button"
                 onClick={() => setStep('checkout')}
-                className="w-full py-3.5 px-5 rounded-lg bg-[#028030] hover:bg-[#026B27] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-3.5 px-5 rounded-lg bg-[#00A650] hover:bg-[#008A42] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <span>FINALIZAR COMPRA</span>
                 <ArrowRight className="w-4 h-4" />
@@ -424,7 +424,7 @@ export function CartDrawer({
                 <button
                   type="submit"
                   form="checkout-form"
-                  className="flex-1 py-3.5 px-5 rounded-lg bg-[#028030] hover:bg-[#026B27] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                  className="flex-1 py-3.5 px-5 rounded-lg bg-[#00A650] hover:bg-[#008A42] text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <Lock className="w-4 h-4" />
                   <span>CONCLUIR PEDIDO</span>
@@ -433,7 +433,7 @@ export function CartDrawer({
             )}
 
             <div className="flex items-center justify-center gap-1.5 text-xs text-zinc-500">
-              <ShieldCheck className="w-4 h-4 text-[#028030]" />
+              <ShieldCheck className="w-4 h-4 text-[#00A650]" />
               <span>Ambiente criptografado · Compra 100% protegida</span>
             </div>
           </div>
